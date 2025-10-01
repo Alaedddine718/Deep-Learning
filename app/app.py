@@ -21,7 +21,7 @@ def get_model():
     global _model
     if _model is None:
         if not os.path.exists(BASE_MODEL_PATH):
-            raise FileNotFoundError("No existe models/mnist_compiled_model.h5. Entrena primero el modelo base.")
+            raise FileNotFoundError("No existe models/mnist_compiled_model.keras. Entrena primero el modelo base.")
         _model = load_model(BASE_MODEL_PATH)
     return _model
 
@@ -43,7 +43,6 @@ def navbar_partial():
 
 @app.route('/predict', methods=['POST'])
 def predict():
-    # archivo o dataURL base64
     if 'image' in request.files:
         img = Image.open(request.files['image']).convert('L')
     else:
@@ -53,9 +52,9 @@ def predict():
             return jsonify({'error': 'No image provided'}), 400
         img = base64_to_image(data_url)
 
-    x = preprocess_digit(img)  # (1,784)
+    x = preprocess_digit(img)
     model = get_model()
-    probs = model.predict(x, verbose=0)[0]  # (10,)
+    probs = model.predict(x, verbose=0)[0]
     pred = int(np.argmax(probs))
     return jsonify({'prediction': pred, 'probs': probs.tolist()})
 
